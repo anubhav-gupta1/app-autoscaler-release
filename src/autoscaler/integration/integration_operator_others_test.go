@@ -203,7 +203,7 @@ var _ = Describe("Integration_Operator_Others", func() {
 		BeforeEach(func() {
 			metric := &models.AppInstanceMetric{
 				AppId:       testAppId,
-				CollectedAt: time.Now().Add(-24 * time.Hour).UnixNano(),
+				CollectedAt: getTime().Add(-24 * time.Hour).UnixNano(),
 				Name:        models.MetricNameMemoryUsed,
 				Unit:        models.UnitMegaBytes,
 				Value:       "123456",
@@ -216,14 +216,14 @@ var _ = Describe("Integration_Operator_Others", func() {
 				MetricType: models.MetricNameMemoryUsed,
 				Unit:       models.UnitMegaBytes,
 				Value:      "123456",
-				Timestamp:  time.Now().Add(-24 * time.Hour).UnixNano(),
+				Timestamp:  getTime().Add(-24 * time.Hour).UnixNano(),
 			}
 			insertAppMetric(appmetric)
 			Expect(getAppMetricTotalCount(testAppId)).To(Equal(1))
 
 			history := &models.AppScalingHistory{
 				AppId:        testAppId,
-				Timestamp:    time.Now().Add(-24 * time.Hour).UnixNano(),
+				Timestamp:    getTime().Add(-24 * time.Hour).UnixNano(),
 				OldInstances: 2,
 				NewInstances: 4,
 				Reason:       "a reason",

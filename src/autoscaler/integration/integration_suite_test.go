@@ -500,7 +500,7 @@ func setPolicyRecurringDate(policyByte []byte) []byte {
 	if policy.Schedules != nil {
 		location, err := time.LoadLocation(policy.Schedules.Timezone)
 		Expect(err).NotTo(HaveOccurred())
-		now := time.Now().In(location)
+		now := getTime().In(location)
 		starttime := now.Add(time.Minute * 10)
 		endtime := now.Add(time.Minute * 20)
 		for _, entry := range policy.Schedules.RecurringSchedules {
@@ -523,11 +523,10 @@ func setPolicyRecurringDate(policyByte []byte) []byte {
 func setPolicySpecificDateTime(policyByte []byte, start time.Duration, end time.Duration) string {
 	timeZone := "GMT"
 	location, _ := time.LoadLocation(timeZone)
-	timeNowInTimeZone := time.Now().In(location)
+	timeNowInTimeZone := getTime().In(location)
 	dateTimeFormat := "2006-01-02T15:04"
 	startTime := timeNowInTimeZone.Add(start).Format(dateTimeFormat)
 	endTime := timeNowInTimeZone.Add(end).Format(dateTimeFormat)
-
 	return fmt.Sprintf(string(policyByte), timeZone, startTime, endTime)
 }
 
@@ -847,7 +846,7 @@ func fakeMetricsPolling(appId string, memoryValue uint64, memQuota uint64) {
 			defer func() { _ = mp.Close() }()
 
 			rw.Header().Set("Content-Type", `multipart/x-protobuf; boundary=`+mp.Boundary())
-			timestamp := time.Now().UnixNano()
+			timestamp := getTime().UnixNano()
 			message1 := marshalMessage(createContainerMetric(appId, 0, 3.0, memoryValue, 2048000000, memQuota, 4096000000, timestamp))
 			message2 := marshalMessage(createContainerMetric(appId, 1, 4.0, memoryValue, 2048000000, memQuota, 4096000000, timestamp))
 			message3 := marshalMessage(createContainerMetric(appId, 2, 5.0, memoryValue, 2048000000, memQuota, 4096000000, timestamp))
@@ -876,7 +875,7 @@ func stopFakeRLPServer(fakeRLPServer *as_testhelpers.FakeEventProducer) {
 
 func createContainerMetric(appId string, instanceIndex int32, cpuPercentage float64, memoryBytes uint64, diskByte uint64, memQuota uint64, diskQuota uint64, timestamp int64) *events.Envelope {
 	if timestamp == 0 {
-		timestamp = time.Now().UnixNano()
+		timestamp = getTime().UnixNano()
 	}
 	cm := &events.ContainerMetric{
 		ApplicationId:    proto.String(appId),
@@ -976,4 +975,17 @@ func marshalMessage(message *events.Envelope) []byte {
 	}
 
 	return data
+}
+
+func getTime() time.Time {
+	setTime := os.Getenv("TIME")
+	theTime := time.Now()
+	var err error
+	if setTime != "" {
+		theTime, err = time.Parse("2006-01-02T15:04", setTime)
+		if err != nil {
+			Fail(fmt.Sprintf("Time specified in the TIME env var is invalid: %s", err.Error()))
+		}
+	}
+	return theTime
 }

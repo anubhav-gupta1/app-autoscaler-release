@@ -64,7 +64,7 @@ testsuite: ginkgo_check
 .PHONY: integration
 integration: ginkgo_check
 	@echo "# Running integration tests"
-	APP_AUTOSCALER_TEST_RUN=true ginkgo ${GINKGO_OPTS} integration
+	APP_AUTOSCALER_TEST_RUN=true TIME="2022-04-15T15:50" ginkgo ${GINKGO_OPTS} integration
 
 generate:
 	@echo "# Generating counterfeits"
