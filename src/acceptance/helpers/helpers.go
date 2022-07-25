@@ -184,15 +184,7 @@ func GenerateDynamicScaleOutPolicy(instanceMin, instanceMax int, metricName stri
 		Adjustment:            "+1",
 	}
 
-	policy := ScalingPolicy{
-		InstanceMin:  instanceMin,
-		InstanceMax:  instanceMax,
-		ScalingRules: []*ScalingRule{&scalingOutRule},
-	}
-	marshaled, err := MarshalWithoutHTMLEscape(policy)
-	Expect(err).NotTo(HaveOccurred())
-
-	return string(marshaled)
+	return PolicyFor(instanceMin, instanceMax, []*ScalingRule{&scalingOutRule})
 }
 
 func GenerateDynamicScaleOutPolicyWithExtraFields(instanceMin, instanceMax int, metricName string, threshold int64) (string, string) {
@@ -246,18 +238,29 @@ func GenerateDynamicScaleInPolicy(instanceMin, instanceMax int, metricName strin
 		Adjustment:            "-1",
 	}
 
+	return PolicyFor(instanceMin, instanceMax, []*ScalingRule{&scalingInRule})
+}
+
+func GenerateDynamicScaleOutAndInPolicy(instanceMin, instanceMax int, metricName string, minThreshold int64, maxThreshold int64) string {
+	scalingRules := InAndOutScalingRulesFor(metricName, minThreshold, maxThreshold)
+
+	return PolicyFor(instanceMin, instanceMax, scalingRules)
+}
+
+func PolicyFor(instanceMin, instanceMax int, scalingRules []*ScalingRule) string {
 	policy := ScalingPolicy{
 		InstanceMin:  instanceMin,
 		InstanceMax:  instanceMax,
-		ScalingRules: []*ScalingRule{&scalingInRule},
+		ScalingRules: scalingRules,
 	}
+
 	marshaled, err := MarshalWithoutHTMLEscape(policy)
 	Expect(err).NotTo(HaveOccurred())
 
 	return string(marshaled)
 }
 
-func GenerateDynamicScaleOutAndInPolicy(instanceMin, instanceMax int, metricName string, minThreshold int64, maxThreshold int64) string {
+func InAndOutScalingRulesFor(metricName string, minThreshold int64, maxThreshold int64) []*ScalingRule {
 	scalingInRule := ScalingRule{
 		MetricType:            metricName,
 		BreachDurationSeconds: TestBreachDurationSeconds,
@@ -276,16 +279,7 @@ func GenerateDynamicScaleOutAndInPolicy(instanceMin, instanceMax int, metricName
 		Adjustment:            "+1",
 	}
 
-	policy := ScalingPolicy{
-		InstanceMin:  instanceMin,
-		InstanceMax:  instanceMax,
-		ScalingRules: []*ScalingRule{&scalingOutRule, &scalingInRule},
-	}
-
-	marshaled, err := MarshalWithoutHTMLEscape(policy)
-	Expect(err).NotTo(HaveOccurred())
-
-	return string(marshaled)
+	return []*ScalingRule{&scalingInRule, &scalingOutRule}
 }
 
 func GenerateDynamicAndSpecificDateSchedulePolicy(instanceMin, instanceMax int, threshold int64,

@@ -262,4 +262,28 @@ var _ = Describe("AutoScaler dynamic policy", func() {
 			helpers.WaitForNInstancesRunning(appGUID, 1, 10*time.Minute)
 		})
 	})
+
+	Context("when scaling on multiple metrics", func() {
+		BeforeEach(func() {
+			cpuScalingRules := helpers.InAndOutScalingRulesFor("cpu", int64(float64(cfg.CPUUpperThreshold)*0.2), int64(float64(cfg.CPUUpperThreshold)*0.4))
+			memoryScalingRules := helpers.InAndOutScalingRulesFor("memoryused", 10, 30)
+
+			scalingRules := append(memoryScalingRules, cpuScalingRules...)
+
+			policy = helpers.PolicyFor(1, 2, scalingRules)
+			initialInstanceCount = 1
+		})
+
+		It("scales in and out for cpu", func() {
+			By("should scale out to 2 instances")
+			helpers.AppSetCpuUsage(cfg, appName, int(float64(cfg.CPUUpperThreshold)*0.9), 5)
+			helpers.WaitForNInstancesRunning(appGUID, 2, 5*time.Minute)
+
+			By("should scale in to 1 instance after cpu usage is reduced")
+			//only hit the one instance that was asked to run hot.
+			helpers.AppEndCpuTest(cfg, appName, 0)
+
+			helpers.WaitForNInstancesRunning(appGUID, 1, 10*time.Minute)
+		})
+	})
 })
