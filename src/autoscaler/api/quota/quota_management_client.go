@@ -92,5 +92,10 @@ func (qmc *Client) SetClient(client *http.Client) {
 }
 
 func (qmc *Client) GetServiceInstancesInOrg(orgGUID, servicePlanGuid string) (int, error) {
+	//TODO
+	//ccServicePlanGuid, err := qmc.cfClient.GetCCServicePlanGuid(brokerServicePlanGuid)
+	//if err != nil {
+	//	return 0, fmt.Errorf("cf-client-get-service-instances-in-org: failed to resolve service plan guid: %w", err)
+	//}
 	return qmc.cfClient.GetServiceInstancesInOrg(orgGUID, servicePlanGuid)
 }

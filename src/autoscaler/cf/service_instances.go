@@ -16,58 +16,29 @@ const (
 	ResultsPerPageParam  = "results-per-page"
 )
 
+type (
+	ServiceInstance struct {
+		Guid string `json:"guid"`
+		Name string `json:"name"`
+		Type string `json:"type"`
+	}
+)
+
+/*GetServiceInstancesInOrg
+ * get service instances in org uses
+ * https://v3-apidocs.cloudfoundry.org/version/3.122.0/index.html#list-service-instances
+ */
 func (c *Client) GetServiceInstancesInOrg(orgGUID, brokerServicePlanGuid string) (int, error) {
-	ccServicePlanGuid, err := c.getCCServicePlanGuid(brokerServicePlanGuid)
-	if err != nil {
-		return 0, fmt.Errorf("cf-client-get-service-instances-in-org: failed to resolve service plan guid: %w", err)
-	}
-
-	servicesUrl, err := url.Parse(c.conf.API)
-	if err != nil {
-		return 0, fmt.Errorf("cf-client-get-service-instances-in-org: failed to parse CF API URL: %w", err)
-	}
-	servicesUrl.Path = servicesUrl.Path + ServiceInstancesPath
-
 	parameters := url.Values{}
-	parameters.Add("q", "organization_guid:"+orgGUID)
-	parameters.Add("q", "service_plan_guid:"+ccServicePlanGuid)
-	parameters.Add(ResultsPerPageParam, "1")
-	servicesUrl.RawQuery = parameters.Encode()
+	parameters.Add("organization_guids", orgGUID)
+	parameters.Add("service_plan_guids", brokerServicePlanGuid)
 
-	c.logger.Debug("get-service-instances", lager.Data{"url": servicesUrl.String()})
-
-	req, err := http.NewRequest("GET", servicesUrl.String(), nil)
+	theUrl := fmt.Sprintf("/v3/service_instances?%s", parameters.Encode())
+	instances, err := PagedResourceRetriever[ServiceInstance]{c}.GetAllPages(theUrl)
 	if err != nil {
-		c.logger.Error("get-service-instances-new-request", err)
-		return 0, fmt.Errorf("cf-client-get-service-instances-in-org: failed to create request to CF API: %w", err)
+		return 0, fmt.Errorf("failed GetServiceInstancesInOrg org(%s), servicePlan(%s): %w", orgGUID, brokerServicePlanGuid, err)
 	}
-	tokens, _ := c.GetTokens()
-	req.Header.Set("Authorization", TokenTypeBearer+" "+tokens.AccessToken)
-
-	var resp *http.Response
-	resp, err = c.httpClient.Do(req)
-
-	if err != nil {
-		c.logger.Error("get-service-instances-do-request", err)
-		return 0, fmt.Errorf("cf-client-get-service-instances-in-org: failed to execute request to CF API: %w", err)
-	}
-	defer resp.Body.Close()
-
-	if resp.StatusCode != http.StatusOK {
-		err = fmt.Errorf("cf-client-get-service-instances-in-org: failed to get services: %s [%d] %s", servicesUrl.String(), resp.StatusCode, resp.Status)
-		c.logger.Error("get-service-instances-response", err)
-		return 0, err
-	}
-
-	results := &struct {
-		TotalResults int `json:"total_results"`
-	}{}
-	err = json.NewDecoder(resp.Body).Decode(results)
-	if err != nil {
-		c.logger.Error("get-service-instances-decode", err)
-		return 0, fmt.Errorf("cf-client-get-service-instances-in-org: failed to decode response from CF API: %w", err)
-	}
-	return results.TotalResults, nil
+	return len(instances), err
 }
 
 type Metadata struct {
@@ -99,7 +70,8 @@ type ServicePlanResource struct {
 	Entity ServicePlanEntity `json:"entity"`
 }
 
-func (c *Client) getCCServicePlanGuid(brokerPlanGuid string) (string, error) {
+//TODO we need to call this first before
+func (c *Client) GetCCServicePlanGuid(brokerPlanGuid string) (string, error) {
 	logger := c.logger.Session("cf-client-get-service-plan-guid", lager.Data{"brokerPlanGuid": brokerPlanGuid})
 	logger.Debug("start")
 	defer logger.Debug("end")
