@@ -1,11 +1,11 @@
 #!/bin/bash
 
 set -euo pipefail
-
+script_dir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
+root_dir=${AUTOSCALER_DIR:-"${script_dir}/../../../"}
 system_domain="${SYSTEM_DOMAIN:-autoscaler.ci.cloudfoundry.org}"
 deployment_name="${DEPLOYMENT_NAME:-app-autoscaler}"
 service_broker_name="${deployment_name}servicebroker"
-autoscaler_root=${AUTOSCALER_DIR:-app-autoscaler-release}
 bbl_state_path="${BBL_STATE_PATH:-bbl-state/bbl-state}"
 
 pushd "${bbl_state_path}"
@@ -23,8 +23,8 @@ set -e
 
 if [[ -n "$existing_service_broker" ]]; then
   echo "Service Broker ${existing_service_broker} already exists"
-  echo " - cleaning up pr"
-  pushd "${autoscaler_root}/src/acceptance" > /dev/null && ./cleanup.sh && popd  > /dev/null
+  echo " - cleaning up existing broker"
+  pushd "${root_dir}/src/acceptance" > /dev/null && ./cleanup.sh && popd  > /dev/null
   echo " - deleting broker"
   cf delete-service-broker -f "${existing_service_broker}"
 fi

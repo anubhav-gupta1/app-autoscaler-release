@@ -329,6 +329,7 @@ jobs:
       release: app-autoscaler-release-main
     params:
       SYSTEM_DOMAIN: autoscaler.ci.cloudfoundry.org
+      AUTOSCALER_DIR:
 
 - name: delete-autoscaler
   serial_groups: [infra]
@@ -603,6 +604,7 @@ jobs:
   - task: register-broker
     file: ci/ci/autoscaler/tasks/register-broker.yml
     params:
+      AUTOSCALER_DIR:
       <<: *upgrade-test-env
     input_mapping:
       release: app-autoscaler-release-main
