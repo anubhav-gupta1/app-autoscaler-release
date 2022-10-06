@@ -6,7 +6,7 @@
       ca_cert: ((/bosh-autoscaler/cf/diego_instance_identity_ca.certificate))
 
 - type: replace
-  path: /instance_groups/name=asapi/jobs/name=golangapiserver/properties/autoscaler/apiserver/metrics_forwarder/mtls_host?
+  path: /instance_groups/name=asapi/jobs/name=apiserver/properties/autoscaler/apiserver/metrics_forwarder/mtls_host?
   value: autoscaler-metricsforwarder-mtls.((system_domain))
 
 - type: replace

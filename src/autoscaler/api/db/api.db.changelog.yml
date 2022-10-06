@@ -15,7 +15,7 @@ databaseChangeLog:
   - changeSet:
       id: 1
       author: pradyutsarma
-      logicalFilePath: /var/vcap/packages/golangapiserver/api.db.changelog.yml
+      logicalFilePath: /var/vcap/packages/apiserver/api.db.changelog.yml
       preConditions:
         - onFail: MARK_RAN
         - not:
@@ -43,7 +43,7 @@ databaseChangeLog:
   - changeSet:
       id: 2
       author: fujitsu
-      logicalFilePath: /var/vcap/packages/golangapiserver/api.db.changelog.yml
+      logicalFilePath: /var/vcap/packages/apiserver/api.db.changelog.yml
       changes:
         - update:
             columns:
@@ -55,7 +55,7 @@ databaseChangeLog:
   - changeSet:
       id: 3
       author: paltanmoy
-      logicalFilePath: /var/vcap/packages/golangapiserver/api.db.changelog.yml
+      logicalFilePath: /var/vcap/packages/apiserver/api.db.changelog.yml
       preConditions:
         - onFail: MARK_RAN
         - not:

@@ -28,9 +28,9 @@ function create_release() {
    echo " - building new release from ${PWD} at revision $(git rev-parse HEAD)"
    echo " - creating release '${version}' in '${build_path}' as ${release_file}"
 
-   yq eval -i ".properties.\"autoscaler.apiserver.info.build\".default = \"${version}\"" jobs/golangapiserver/spec
-   git add jobs/golangapiserver/spec
-   [ "${CI}" = "true" ] && git commit -m "Updated release version to ${version} in golangapiserver"
+   yq eval -i ".properties.\"autoscaler.apiserver.info.build\".default = \"${version}\"" jobs/apiserver/spec
+   git add jobs/apiserver/spec
+   [ "${CI}" = "true" ] && git commit -m "Updated release version to ${version} in apiserver"
 
    # shellcheck disable=SC2086
    bosh create-release \

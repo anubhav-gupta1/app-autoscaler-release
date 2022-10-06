@@ -68,9 +68,9 @@ func main() {
 	}
 	defer func() { _ = policyDb.Close() }()
 
-	httpStatusCollector := healthendpoint.NewHTTPStatusCollector("autoscaler", "golangapiserver")
+	httpStatusCollector := healthendpoint.NewHTTPStatusCollector("autoscaler", "apiserver")
 	prometheusCollectors := []prometheus.Collector{
-		healthendpoint.NewDatabaseStatusCollector("autoscaler", "golangapiserver", "policyDB", policyDb),
+		healthendpoint.NewDatabaseStatusCollector("autoscaler", "apiserver", "policyDB", policyDb),
 		httpStatusCollector,
 	}
 
@@ -111,7 +111,7 @@ func main() {
 			os.Exit(1)
 		}
 		defer func() { _ = bindingDB.Close() }()
-		prometheusCollectors = append(prometheusCollectors, healthendpoint.NewDatabaseStatusCollector("autoscaler", "golangapiserver", "bindingDB", bindingDB))
+		prometheusCollectors = append(prometheusCollectors, healthendpoint.NewDatabaseStatusCollector("autoscaler", "apiserver", "bindingDB", bindingDB))
 		checkBindingFunc = func(appId string) bool {
 			return bindingDB.CheckServiceBinding(appId)
 		}
@@ -129,7 +129,7 @@ func main() {
 	}
 
 	promRegistry := prometheus.NewRegistry()
-	healthendpoint.RegisterCollectors(promRegistry, prometheusCollectors, true, logger.Session("golangapiserver-prometheus"))
+	healthendpoint.RegisterCollectors(promRegistry, prometheusCollectors, true, logger.Session("apiserver-prometheus"))
 
 	rateLimiter := ratelimiter.DefaultRateLimiter(conf.RateLimit.MaxAmount, conf.RateLimit.ValidDuration, logger.Session("api-ratelimiter"))
 	publicApiHttpServer, err := publicapiserver.NewPublicApiServer(logger.Session("public_api_http_server"), conf,

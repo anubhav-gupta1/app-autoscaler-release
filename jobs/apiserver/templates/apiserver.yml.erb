@@ -72,9 +72,9 @@ public_api_server:
   port:  <%= p("autoscaler.apiserver.public_api.server.port") %>
   <% if_p("autoscaler.apiserver.public_api.server.ca_cert", "autoscaler.apiserver.public_api.server.server_cert", "autoscaler.apiserver.public_api.server.server_key") do %>
   tls:
-    ca_file: /var/vcap/jobs/golangapiserver/config/certs/apiserver/ca.crt
-    cert_file: /var/vcap/jobs/golangapiserver/config/certs/apiserver/server.crt
-    key_file: /var/vcap/jobs/golangapiserver/config/certs/apiserver/server.key
+    ca_file: /var/vcap/jobs/apiserver/config/certs/apiserver/ca.crt
+    cert_file: /var/vcap/jobs/apiserver/config/certs/apiserver/server.crt
+    key_file: /var/vcap/jobs/apiserver/config/certs/apiserver/server.key
   <% end %>
 
 <% if p("autoscaler.apiserver.use_buildin_mode") == false %>
@@ -82,9 +82,9 @@ broker_server:
   port:  <%= p("autoscaler.apiserver.broker.server.port") %>
   <% if_p("autoscaler.apiserver.broker.server.ca_cert", "autoscaler.apiserver.broker.server.server_cert", "autoscaler.apiserver.broker.server.server_key") do %>
   tls:
-    ca_file: /var/vcap/jobs/golangapiserver/config/certs/brokerserver/ca.crt
-    cert_file: /var/vcap/jobs/golangapiserver/config/certs/brokerserver/server.crt
-    key_file: /var/vcap/jobs/golangapiserver/config/certs/brokerserver/server.key
+    ca_file: /var/vcap/jobs/apiserver/config/certs/brokerserver/ca.crt
+    cert_file: /var/vcap/jobs/apiserver/config/certs/brokerserver/server.crt
+    key_file: /var/vcap/jobs/apiserver/config/certs/brokerserver/server.key
   <% end %>
 
 <% if p("autoscaler.apiserver.broker.broker_credentials") != '' %>
@@ -95,11 +95,11 @@ broker_credentials:
   broker_password: <%= p("autoscaler.apiserver.broker.password") %>
 <% end %>
 
-catalog_path: /var/vcap/jobs/golangapiserver/config/catalog.json
-catalog_schema_path: /var/vcap/packages/golangapiserver/catalog.schema.json
+catalog_path: /var/vcap/jobs/apiserver/config/catalog.json
+catalog_schema_path: /var/vcap/packages/apiserver/catalog.schema.json
 <% end %>
-info_file_path: /var/vcap/jobs/golangapiserver/config/info.json
-policy_schema_path: /var/vcap/packages/golangapiserver/policy_json.schema.json
+info_file_path: /var/vcap/jobs/apiserver/config/info.json
+policy_schema_path: /var/vcap/packages/apiserver/policy_json.schema.json
 dashboard_redirect_uri: <%= p("autoscaler.apiserver.broker.server.dashboard_redirect_uri") %>
 use_buildin_mode: <%= p("autoscaler.apiserver.use_buildin_mode") %>
 
@@ -130,30 +130,30 @@ db:
 scaling_engine:
   scaling_engine_url: https://<%= p("autoscaler.apiserver.scaling_engine.host") %>:<%= p("autoscaler.apiserver.scaling_engine.port") %>
   tls:
-    key_file: /var/vcap/jobs/golangapiserver/config/certs/scalingengine/client.key
-    cert_file: /var/vcap/jobs/golangapiserver/config/certs/scalingengine/client.crt
-    ca_file: /var/vcap/jobs/golangapiserver/config/certs/scalingengine/ca.crt
+    key_file: /var/vcap/jobs/apiserver/config/certs/scalingengine/client.key
+    cert_file: /var/vcap/jobs/apiserver/config/certs/scalingengine/client.crt
+    ca_file: /var/vcap/jobs/apiserver/config/certs/scalingengine/ca.crt
 
 metrics_collector:
   metrics_collector_url: https://<%= p("autoscaler.apiserver.metrics_collector.host") %>:<%= p("autoscaler.apiserver.metrics_collector.port") %>
   tls:
-    key_file: /var/vcap/jobs/golangapiserver/config/certs/metricscollector/client.key
-    cert_file: /var/vcap/jobs/golangapiserver/config/certs/metricscollector/client.crt
-    ca_file: /var/vcap/jobs/golangapiserver/config/certs/metricscollector/ca.crt
+    key_file: /var/vcap/jobs/apiserver/config/certs/metricscollector/client.key
+    cert_file: /var/vcap/jobs/apiserver/config/certs/metricscollector/client.crt
+    ca_file: /var/vcap/jobs/apiserver/config/certs/metricscollector/ca.crt
 
 scheduler:
   scheduler_url: https://<%= p("autoscaler.apiserver.scheduler.host") %>:<%= p("autoscaler.apiserver.scheduler.port") %>
   tls:
-    key_file: /var/vcap/jobs/golangapiserver/config/certs/scheduler/client.key
-    cert_file: /var/vcap/jobs/golangapiserver/config/certs/scheduler/client.crt
-    ca_file: /var/vcap/jobs/golangapiserver/config/certs/scheduler/ca.crt
+    key_file: /var/vcap/jobs/apiserver/config/certs/scheduler/client.key
+    cert_file: /var/vcap/jobs/apiserver/config/certs/scheduler/client.crt
+    ca_file: /var/vcap/jobs/apiserver/config/certs/scheduler/ca.crt
 
 event_generator:
   event_generator_url: https://<%= p("autoscaler.apiserver.event_generator.host") %>:<%= p("autoscaler.apiserver.event_generator.port") %>
   tls:
-    key_file: /var/vcap/jobs/golangapiserver/config/certs/eventgenerator/client.key
-    cert_file: /var/vcap/jobs/golangapiserver/config/certs/eventgenerator/client.crt
-    ca_file: /var/vcap/jobs/golangapiserver/config/certs/eventgenerator/ca.crt
+    key_file: /var/vcap/jobs/apiserver/config/certs/eventgenerator/client.key
+    cert_file: /var/vcap/jobs/apiserver/config/certs/eventgenerator/client.crt
+    ca_file: /var/vcap/jobs/apiserver/config/certs/eventgenerator/ca.crt
 
 metrics_forwarder:
   metrics_forwarder_url: https://<%= p("autoscaler.apiserver.metrics_forwarder.host") %>

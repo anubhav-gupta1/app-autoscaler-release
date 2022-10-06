@@ -492,7 +492,7 @@ instance_groups:
     max_in_flight: 1
     serial: true
   jobs:
-  - name: golangapiserver
+  - name: apiserver
     release: app-autoscaler
     properties:
       autoscaler:

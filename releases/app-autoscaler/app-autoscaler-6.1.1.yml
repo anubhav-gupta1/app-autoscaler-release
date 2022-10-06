@@ -13,13 +13,13 @@ jobs:
   - eventgenerator
   - common
   - changeloglockcleaner
-- name: golangapiserver
+- name: apiserver
   version: bcdc3284c0004b9e22fd6515304544c2e2a86dd772f9c1de0acf307229662f05
   fingerprint: bcdc3284c0004b9e22fd6515304544c2e2a86dd772f9c1de0acf307229662f05
   sha1: sha256:00c59d2c24a848c4566186490293a124bf574c3653a1717422b3ed281f89904e
   packages:
   - golang-1-linux
-  - golangapiserver
+  - apiserver
   - db
   - openjdk-11
   - common
@@ -111,7 +111,7 @@ packages:
   fingerprint: a54b33c812a8cfc39ba82782a23d74bf33f5a0a92012b41a101cc9d9d48d345c
   sha1: sha256:089e88df2a4d69243a14a1adeeb5011deaaf602dedb55d476a83d45f1c03fdc9
   dependencies: []
-- name: golangapiserver
+- name: apiserver
   version: 4d7e30620f65f07c642c1deae0d7b7bb073413591c448ce99d6d72d5060d4cd9
   fingerprint: 4d7e30620f65f07c642c1deae0d7b7bb073413591c448ce99d6d72d5060d4cd9
   sha1: sha256:ac0ac0776c6ed94c0c6363d8dfc900a10d041dc98923c0cf3da1762fca1b4bb1

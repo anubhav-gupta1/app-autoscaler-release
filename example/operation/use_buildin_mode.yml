@@ -3,5 +3,5 @@
 # app_autoscaler_version: Version numbering of the release to deploy.
 ---
 - type: replace
-  path: /instance_groups/name=asapi/jobs/name=golangapiserver/properties/autoscaler/apiserver/use_buildin_mode?
+  path: /instance_groups/name=asapi/jobs/name=apiserver/properties/autoscaler/apiserver/use_buildin_mode?
   value: true

@@ -55,7 +55,7 @@ cf:
   secret: client-secret
   skip_ssl_validation: false
   grant_type: client_credentials
-info_file_path: /var/vcap/jobs/golangapiserver/config/info.json
+info_file_path: /var/vcap/jobs/apiserver/config/info.json
 rate_limit:
   max_amount: 10
   valid_duration: 1s

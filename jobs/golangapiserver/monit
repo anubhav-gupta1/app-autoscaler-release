@@ -1,6 +1,0 @@
-check process golangapiserver
-  with pidfile /var/vcap/sys/run/golangapiserver/golangapiserver.pid
-  start program "/var/vcap/jobs/golangapiserver/bin/apiserver_ctl start"
-  stop program "/var/vcap/jobs/golangapiserver/bin/apiserver_ctl stop"
-  group vcap
-

@@ -1,5 +1,5 @@
 ---
-name: golangapiserver
+name: apiserver
 
 dependencies:
 - golang-1-linux

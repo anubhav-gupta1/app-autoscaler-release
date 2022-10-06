@@ -1,4 +1,4 @@
-name: golangapiserver
+name: apiserver
 templates:
   apiserver_ctl.erb: bin/apiserver_ctl
   apiserver.yml.erb: config/apiserver.yml
@@ -33,7 +33,7 @@ templates:
   hooks/post-stop.sh.erb: bin/hooks/post-stop.sh
 packages:
   - golang-1-linux
-  - golangapiserver
+  - apiserver
   - db
   - openjdk-11
   - common

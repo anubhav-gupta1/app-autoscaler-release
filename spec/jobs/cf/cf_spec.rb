@@ -7,7 +7,7 @@ require "yaml"
 describe "cf sections relevant specs" do
   let(:release) { Bosh::Template::Test::ReleaseDir.new(File.join(File.dirname(__FILE__), "../../..")) }
   [
-    %w[api_server golangapiserver config/apiserver.yml apiserver.yml],
+    %w[api_server apiserver config/apiserver.yml apiserver.yml],
     %w[scalingengine scalingengine config/scalingengine.yml scalingengine.yml],
     %w[operator operator config/operator.yml operator.yml]
   ].each do |service, release_job, config_file, properties_file|

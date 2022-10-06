@@ -242,7 +242,7 @@ instance_groups:
   networks:
   - name: default
   jobs:
-  - name: golangapiserver
+  - name: apiserver
     release: app-autoscaler
     properties:
       autoscaler:

@@ -222,42 +222,42 @@
   value: *postgres_domain
 
 ###########
-# asapi - golangapiserver
+# asapi - apiserver
 - type: replace
-  path: /instance_groups/name=asapi/jobs/name=golangapiserver/properties/autoscaler/binding_db/address?
+  path: /instance_groups/name=asapi/jobs/name=apiserver/properties/autoscaler/binding_db/address?
   value: *postgres_domain
 
 - type: replace
-  path: /instance_groups/name=asapi/jobs/name=golangapiserver/properties/autoscaler/policy_db/address?
+  path: /instance_groups/name=asapi/jobs/name=apiserver/properties/autoscaler/policy_db/address?
   value: *postgres_domain
 
 - type: replace
-  path: /instance_groups/name=asapi/jobs/name=golangapiserver/properties/autoscaler/apiserver/scheduler/host?
+  path: /instance_groups/name=asapi/jobs/name=apiserver/properties/autoscaler/apiserver/scheduler/host?
   value: *scheduler_domain
 
 - type: replace
-  path: /instance_groups/name=asapi/jobs/name=golangapiserver/properties/autoscaler/apiserver/metrics_collector/host?
+  path: /instance_groups/name=asapi/jobs/name=apiserver/properties/autoscaler/apiserver/metrics_collector/host?
   value: *metricsserver_domain
 
 - type: replace
-  path: /instance_groups/name=asapi/jobs/name=golangapiserver/properties/autoscaler/apiserver/scaling_engine/host?
+  path: /instance_groups/name=asapi/jobs/name=apiserver/properties/autoscaler/apiserver/scaling_engine/host?
   value: *scalingengine_domain
 
 - type: replace
-  path: /instance_groups/name=asapi/jobs/name=golangapiserver/properties/autoscaler/apiserver/event_generator/host?
+  path: /instance_groups/name=asapi/jobs/name=apiserver/properties/autoscaler/apiserver/event_generator/host?
   value: *eventgenerator_domain
 
 - type: replace
-  path: /instance_groups/name=asapi/jobs/name=golangapiserver/properties/autoscaler/apiserver/broker/server/catalog/services/id=autoscaler-guid/name
+  path: /instance_groups/name=asapi/jobs/name=apiserver/properties/autoscaler/apiserver/broker/server/catalog/services/id=autoscaler-guid/name
   value: ((deployment_name))
 
 - type: replace
-  path: /instance_groups/name=asapi/jobs/name=golangapiserver/properties/autoscaler/apiserver/metrics_forwarder/host?
+  path: /instance_groups/name=asapi/jobs/name=apiserver/properties/autoscaler/apiserver/metrics_forwarder/host?
   value: *metricsforwarder_public_domain
 
 ## values originally in instance-identity-cert-from-cf.yml
 - type: replace
-  path: /instance_groups/name=asapi/jobs/name=golangapiserver/properties/autoscaler/apiserver/metrics_forwarder/mtls_host?
+  path: /instance_groups/name=asapi/jobs/name=apiserver/properties/autoscaler/apiserver/metrics_forwarder/mtls_host?
   value: *metricsforwarder_mtls_public_domain
 
 - type: replace

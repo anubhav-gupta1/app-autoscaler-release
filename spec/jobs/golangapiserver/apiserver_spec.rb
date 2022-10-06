@@ -4,10 +4,10 @@ require "bosh/template/test"
 require "rspec/file_fixtures"
 require "yaml"
 
-describe "golangapiserver" do
+describe "apiserver" do
   context "apiserver.yml.erb" do
     let(:release) { Bosh::Template::Test::ReleaseDir.new(File.join(File.dirname(__FILE__), "../../..")) }
-    let(:job) { release.job("golangapiserver") }
+    let(:job) { release.job("apiserver") }
     let(:template) { job.template("config/apiserver.yml") }
     let(:properties) { YAML.safe_load(fixture("apiserver.yml").read) }
     let(:rendered_template) { YAML.safe_load(template.render(properties)) }
@@ -100,9 +100,9 @@ describe "golangapiserver" do
 
           expect(rendered_template["broker_server"]["tls"]).not_to be_nil
           expect(rendered_template["broker_server"]["tls"]).to include({
-            "key_file" => "/var/vcap/jobs/golangapiserver/config/certs/brokerserver/server.key",
-            "ca_file" => "/var/vcap/jobs/golangapiserver/config/certs/brokerserver/ca.crt",
-            "cert_file" => "/var/vcap/jobs/golangapiserver/config/certs/brokerserver/server.crt"
+            "key_file" => "/var/vcap/jobs/apiserver/config/certs/brokerserver/server.key",
+            "ca_file" => "/var/vcap/jobs/apiserver/config/certs/brokerserver/ca.crt",
+            "cert_file" => "/var/vcap/jobs/apiserver/config/certs/brokerserver/server.crt"
           })
         end
       end
@@ -149,9 +149,9 @@ describe "golangapiserver" do
 
         expect(rendered_template["public_api_server"]["tls"]).not_to be_nil
         expect(rendered_template["public_api_server"]["tls"]).to include({
-          "key_file" => "/var/vcap/jobs/golangapiserver/config/certs/apiserver/server.key",
-          "ca_file" => "/var/vcap/jobs/golangapiserver/config/certs/apiserver/ca.crt",
-          "cert_file" => "/var/vcap/jobs/golangapiserver/config/certs/apiserver/server.crt"
+          "key_file" => "/var/vcap/jobs/apiserver/config/certs/apiserver/server.key",
+          "ca_file" => "/var/vcap/jobs/apiserver/config/certs/apiserver/ca.crt",
+          "cert_file" => "/var/vcap/jobs/apiserver/config/certs/apiserver/server.crt"
         })
       end
     end

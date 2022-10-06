@@ -1,0 +1,6 @@
+check process apiserver
+  with pidfile /var/vcap/sys/run/apiserver/apiserver.pid
+  start program "/var/vcap/jobs/apiserver/bin/apiserver_ctl start"
+  stop program "/var/vcap/jobs/apiserver/bin/apiserver_ctl stop"
+  group vcap
+
