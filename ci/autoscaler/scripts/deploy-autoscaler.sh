@@ -47,10 +47,6 @@ CF_ADMIN_PASSWORD=$(credhub get -n /bosh-autoscaler/cf/cf_admin_password -q)
 uaac target "https://uaa.${system_domain}" --skip-ssl-validation
 uaac token client get admin -s "$UAA_CLIENT_SECRET"
 
-set +e
-exist=$(uaac client get autoscaler_client_id | grep -c NotFound)
-set -e
-
 function deploy () {
   OPS_FILES_TO_USE=""
   for OPS_FILE in ${ops_files}; do
@@ -84,17 +80,23 @@ function deploy () {
     -v skip_ssl_validation=true
 }
 
-if [[ $exist == 0 ]]; then
-  echo "Updating client token"
-  uaac client update "autoscaler_client_id" \
-	    --authorities "cloud_controller.read,cloud_controller.admin,uaa.resource,routing.routes.write,routing.routes.read,routing.router_groups.read"
-else
-  echo "Creating client token"
-  uaac client add "autoscaler_client_id" \
-	--authorized_grant_types "client_credentials" \
-	--authorities "cloud_controller.read,cloud_controller.admin,uaa.resource,routing.routes.write,routing.routes.read,routing.router_groups.read" \
-	--secret "autoscaler_client_secret"
-fi
+function create_update_uua_client(){
+  set +e
+  #shellcheck disable=SC2155
+  local exist=$(uaac client get autoscaler_client_id | grep -c NotFound)
+  set -e
+  if [[ $exist == 0 ]]; then
+    echo "Updating client token"
+    uaac client update "autoscaler_client_id" \
+        --authorities "cloud_controller.read,cloud_controller.admin,uaa.resource,routing.routes.write,routing.routes.read,routing.router_groups.read"
+  else
+    echo "Creating client token"
+    uaac client add "autoscaler_client_id" \
+    --authorized_grant_types "client_credentials" \
+    --authorities "cloud_controller.read,cloud_controller.admin,uaa.resource,routing.routes.write,routing.routes.read,routing.router_groups.read" \
+    --secret "autoscaler_client_secret"
+  fi
+}
 
 function find_or_upload_stemcell(){
   # Determine if we need to upload a stemcell at this point.
@@ -118,7 +120,7 @@ function find_or_upload_stemcell(){
 
 
 function find_or_upload_release(){
-  AUTOSCALER_RELEASE_EXISTS=$(bosh releases | grep -c "${bosh_release_version}" || true)
+  AUTOSCALER_RELEASE_EXISTS=$(bosh releases | grep -c -E "\s${bosh_release_version}[*]*\s" || true)
   echo "Checking if release:'${bosh_release_version}' exists: ${AUTOSCALER_RELEASE_EXISTS}"
   if [[ "${AUTOSCALER_RELEASE_EXISTS}" == 0 ]]; then
     echo "Creating Release with bosh version ${bosh_release_version}"
@@ -133,6 +135,7 @@ function find_or_upload_release(){
 }
 
 pushd "${autoscaler_dir}" > /dev/null
+  create_update_uua_client
   find_or_upload_stemcell
   find_or_upload_release
   deploy
