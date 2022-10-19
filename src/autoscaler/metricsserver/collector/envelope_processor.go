@@ -110,8 +110,7 @@ func (ep *envelopeProcessor) processHttpStartStopMetrics() {
 			continue
 		}
 
-		metrics := envelopeprocessor.GetHttpStartStopInstanceMetrics(ep.httpStartStopEnvelopes[appID], appID, ep.clock.Now().UnixNano(),
-			ep.collectInterval)
+		metrics := envelopeprocessor.GetHttpStartStopInstanceMetrics(ep.httpStartStopEnvelopes[appID], appID, ep.clock.Now().UnixNano(), ep.collectInterval)
 		for i := range metrics {
 			ep.metricChan <- &metrics[i]
 		}

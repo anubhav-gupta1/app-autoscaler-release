@@ -1,13 +1,21 @@
 package main_test
 
 import (
+	. "code.cloudfoundry.org/app-autoscaler/src/autoscaler/testhelpers"
+	"code.cloudfoundry.org/cfhttp"
+	"code.cloudfoundry.org/go-loggregator/v8/rpc/loggregator_v2"
 	"fmt"
-	"io"
-	"net/http"
-	"os"
-
+	"github.com/golang/protobuf/proto"
+	"github.com/gorilla/websocket"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
+	"io"
+	"log"
+	"net/http"
+	"net/url"
+	"os"
+	"path/filepath"
+	"time"
 
 	. "github.com/onsi/gomega/gbytes"
 	. "github.com/onsi/gomega/gexec"
@@ -24,6 +32,49 @@ var _ = Describe("MetricsServer", func() {
 
 	AfterEach(func() {
 		runner.KillWithFire()
+	})
+
+	Describe("Sending ws start and stop envelopes", func() {
+		var ws websocket.Conn
+		BeforeEach(func() {
+			runner.Start()
+
+			u := url.URL{Scheme: "wss", Host: fmt.Sprintf("localhost:%d", wsPort), Path: "/"}
+			log.Printf("connecting to %s", u.String())
+			//nolint:staticcheck  // SA1019 TODO: https://github.com/cloudfoundry/app-autoscaler-release/issues/548
+			tlsConfig, err := cfhttp.NewTLSConfig(
+				filepath.Join(testCertDir, "metricserver.crt"),
+				filepath.Join(testCertDir, "metricserver.key"),
+				filepath.Join(testCertDir, "autoscaler-ca.crt"),
+			)
+			ws, _, err := (&websocket.Dialer{
+				Proxy:            http.ProxyFromEnvironment,
+				HandshakeTimeout: 45 * time.Second,
+				TLSClientConfig:  tlsConfig,
+			}).Dial(u.String(), nil)
+
+			FailOnError("failed open ws", err)
+
+			DeferCleanup(func() {
+				err := ws.WriteMessage(websocket.CloseMessage, websocket.FormatCloseMessage(websocket.CloseNormalClosure, ""))
+				FailOnError("Closed failed to close", err)
+			})
+
+		})
+		It("try it out", func() {
+			envelope := &loggregator_v2.Envelope{}
+			envelope.Message = &loggregator_v2.Envelope_Timer{Timer: &loggregator_v2.Timer{Start: time.Now().UnixNano(), Stop: time.Now().Add(1 * time.Second).UnixNano()}}
+			envelope.SourceId = "some-app"
+			envelope.InstanceId = "0"
+			envelope.GetTimer()
+
+			message, err := proto.Marshal(envelope)
+			FailOnError("proto.Marshal", err)
+
+			err = ws.WriteMessage(websocket.BinaryMessage, message)
+			FailOnError("WriteMessage", err)
+		})
+
 	})
 
 	Describe("MetricsServer configuration check", func() {

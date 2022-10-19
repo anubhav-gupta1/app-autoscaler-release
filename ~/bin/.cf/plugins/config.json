@@ -1,0 +1,92 @@
+{
+  "Plugins": {
+    "AutoScaler": {
+      "Name": "AutoScaler",
+      "Location": "~/bin/.cf/plugins/AutoScaler",
+      "Version": {
+        "Major": 3,
+        "Minor": 0,
+        "Build": 0
+      },
+      "LibraryVersion": {
+        "Major": 0,
+        "Minor": 0,
+        "Build": 0
+      },
+      "Commands": [
+        {
+          "Name": "autoscaling-api",
+          "Alias": "asa",
+          "HelpText": "Set or view AutoScaler service API endpoint",
+          "UsageDetails": {
+            "Usage": "cf autoscaling-api [URL] [--unset] [--skip-ssl-validation]\n\nOPTIONS:\n\t--unset                 Unset the api endpoint,\n\t--skip-ssl-validation   Skip verification of the api endpoint. Not recommended! Inherit \"cf\" --skip-ssl-validation setting by default",
+            "Options": null
+          }
+        },
+        {
+          "Name": "autoscaling-policy",
+          "Alias": "asp",
+          "HelpText": "Retrieve the scaling policy of an application",
+          "UsageDetails": {
+            "Usage": "cf autoscaling-policy APP_NAME [--output PATH_TO_FILE]\n\nOPTIONS:\n\t--output\tDump the policy to a file in JSON format",
+            "Options": null
+          }
+        },
+        {
+          "Name": "attach-autoscaling-policy",
+          "Alias": "aasp",
+          "HelpText": "Attach a scaling policy to an application",
+          "UsageDetails": {
+            "Usage": "cf attach-autoscaling-policy APP_NAME PATH_TO_FILE",
+            "Options": null
+          }
+        },
+        {
+          "Name": "detach-autoscaling-policy",
+          "Alias": "dasp",
+          "HelpText": "Detach the scaling policy from an application",
+          "UsageDetails": {
+            "Usage": "cf detach-as-policy APP_NAME",
+            "Options": null
+          }
+        },
+        {
+          "Name": "create-autoscaling-credential",
+          "Alias": "casc",
+          "HelpText": "Create custom metric credential for an application",
+          "UsageDetails": {
+            "Usage": "cf create-autoscaling-credential APP_NAME [--username USERNAME --password PASSWORD] [--output PATH_TO_FILE]\n\nOPTIONS:\n\t--username, -u   Username of the custom metric credential, random username will be set if not specified.\n\t--password, -p   Password of the custom metric credential, random password will be set if not specified.\n\t--output         Dump the credential to a file in JSON format.\n\t\t\t\t\t",
+            "Options": null
+          }
+        },
+        {
+          "Name": "delete-autoscaling-credential",
+          "Alias": "dasc",
+          "HelpText": "Delete the custom metric credential of an application",
+          "UsageDetails": {
+            "Usage": "cf delete-autoscaling-credential APP_NAME",
+            "Options": null
+          }
+        },
+        {
+          "Name": "autoscaling-metrics",
+          "Alias": "asm",
+          "HelpText": "Retrieve the metrics of an application",
+          "UsageDetails": {
+            "Usage": "cf autoscaling-metrics APP_NAME METRIC_NAME [--start START_TIME] [--end END_TIME] [--asc] [--output PATH_TO_FILE]\n\nMETRIC_NAME:\n\tmemoryused, memoryutil, responsetime, throughput, cpu or custom metric names.\nOPTIONS:\n\t--start\t\tStart time of metrics collected with format \"yyyy-MM-ddTHH:mm:ss+/-HH:mm\" or \"yyyy-MM-ddTHH:mm:ssZ\", default to very beginning if not specified.\n\t--end\t\tEnd time of the metrics collected with format \"yyyy-MM-ddTHH:mm:ss+/-HH:mm\" or \"yyyy-MM-ddTHH:mm:ssZ\", default to current time if not speficied.\n\t--asc\t\tDisplay in ascending order, default to descending order if not specified.\n\t--output\tDump the metrics to a file in table format.\n\t\t\t\t\t",
+            "Options": null
+          }
+        },
+        {
+          "Name": "autoscaling-history",
+          "Alias": "ash",
+          "HelpText": "Retrieve the scaling history of an application",
+          "UsageDetails": {
+            "Usage": "cf autoscaling-history APP_NAME [--start START_TIME] [--end END_TIME] [--asc] [--output PATH_TO_FILE] \n\nOPTIONS:\n\t--start\t\tStart time of the scaling history with format \"yyyy-MM-ddTHH:mm:ss+/-HH:mm\" or \"yyyy-MM-ddTHH:mm:ssZ\", default to very beginning if not specified.\n\t--end\t\tEnd time of the scaling history with format \"yyyy-MM-ddTHH:mm:ss+/-HH:mm\" or \"yyyy-MM-ddTHH:mm:ssZ\", default to current time if not speficied.\n\t--asc\t\tDisplay in ascending order, default to descending order if not specified.\n\t--output\tDump the scaling history to a file in table format.\n\t\t\t\t\t",
+            "Options": null
+          }
+        }
+      ]
+    }
+  }
+}

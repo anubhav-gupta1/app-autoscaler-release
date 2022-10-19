@@ -8,7 +8,7 @@ import (
 	"testing"
 	"time"
 
-	"code.cloudfoundry.org/app-autoscaler/src/autoscaler/testhelpers"
+	. "code.cloudfoundry.org/app-autoscaler/src/autoscaler/testhelpers"
 
 	"code.cloudfoundry.org/cfhttp"
 	_ "github.com/go-sql-driver/mysql"
@@ -27,11 +27,14 @@ var (
 	msPath           string
 	cfg              config.Config
 	msPort           int
+	wsPort           int
 	healthport       int
 	configFile       *os.File
 	httpClient       *http.Client
 	healthHttpClient *http.Client
 )
+
+const testCertDir = "../../../../../test-certs"
 
 func TestMetricsServer(t *testing.T) {
 	RegisterFailHandler(Fail)
@@ -42,45 +45,30 @@ var _ = SynchronizedBeforeSuite(func() []byte {
 	ms, err := gexec.Build("code.cloudfoundry.org/app-autoscaler/src/autoscaler/metricsserver/cmd/metricsserver", "-race")
 	Expect(err).NotTo(HaveOccurred())
 
-	dbUrl := testhelpers.GetDbUrl()
-	database, err := db.GetConnection(dbUrl)
-	Expect(err).NotTo(HaveOccurred())
-
-	msDB, err := sqlx.Open(database.DriverName, database.DSN)
-	Expect(err).NotTo(HaveOccurred())
+	msDB := OpenDb()
 
 	_, err = msDB.Exec("DELETE FROM appinstancemetrics")
-	Expect(err).NotTo(HaveOccurred())
+	FailOnError("clean appinstancemetrics", err)
 
 	_, err = msDB.Exec("DELETE from policy_json")
-	Expect(err).NotTo(HaveOccurred())
+	FailOnError("clean policy_json", err)
 
-	policy := `
-		{
- 			"instance_min_count": 1,
-  			"instance_max_count": 5
-		}`
-	query := msDB.Rebind("INSERT INTO policy_json(app_id, policy_json, guid) values(?, ?, ?)")
-	_, err = msDB.Exec(query, "an-app-id", policy, "1234")
-	Expect(err).NotTo(HaveOccurred())
+	AddAppPolicy(msDB, "an-app-id", "1234")
 
 	err = msDB.Close()
-	Expect(err).NotTo(HaveOccurred())
-
+	FailOnError("close db", err)
 	return []byte(ms)
 }, func(pathsByte []byte) {
 	msPath = string(pathsByte)
 
-	testCertDir := "../../../../../test-certs"
 	msPort = 7000 + GinkgoParallelProcess()
+	wsPort = 7100 + GinkgoParallelProcess()
 	healthport = 8000 + GinkgoParallelProcess()
 	cfg.Server.Port = msPort
-
 	cfg.Health.Port = healthport
-
 	cfg.Logging.Level = "info"
 
-	dbUrl := testhelpers.GetDbUrl()
+	dbUrl := GetDbUrl()
 	cfg.DB.InstanceMetricsDB = db.DatabaseConfig{
 		URL:                   dbUrl,
 		MaxOpenConnections:    10,
@@ -104,6 +92,7 @@ var _ = SynchronizedBeforeSuite(func() []byte {
 	cfg.HttpClientTimeout = 10 * time.Second
 	cfg.NodeAddrs = []string{"localhost"}
 	cfg.NodeIndex = 0
+	cfg.Collector.WSPort = wsPort
 	cfg.Collector.WSKeepAliveTime = 1 * time.Minute
 
 	cfg.Collector.PersistMetrics = true
@@ -130,6 +119,27 @@ var _ = SynchronizedBeforeSuite(func() []byte {
 
 	healthHttpClient = &http.Client{}
 })
+
+func OpenDb() *sqlx.DB {
+	dbUrl := GetDbUrl()
+	database, err := db.GetConnection(dbUrl)
+	FailOnError("could not open connection to DB", err)
+
+	msDB, err := sqlx.Open(database.DriverName, database.DSN)
+	FailOnError("could not open DB", err)
+	return msDB
+}
+
+func AddAppPolicy(db *sqlx.DB, appId, appGuid string) {
+	policy := `
+		{
+ 			"instance_min_count": 1,
+  			"instance_max_count": 5
+		}`
+	query := db.Rebind("INSERT INTO policy_json(app_id, policy_json, guid) values(?, ?, ?)")
+	_, err := db.Exec(query, appId, policy, appGuid)
+	FailOnError("insert policy failed", err)
+}
 
 var _ = SynchronizedAfterSuite(func() {
 	os.Remove(configFile.Name())
