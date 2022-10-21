@@ -1,12 +1,15 @@
 package main_test
 
 import (
+	"code.cloudfoundry.org/app-autoscaler/src/autoscaler/metricsgateway"
+	mgHelpers "code.cloudfoundry.org/app-autoscaler/src/autoscaler/metricsgateway/helpers"
+	"code.cloudfoundry.org/app-autoscaler/src/autoscaler/routes"
 	. "code.cloudfoundry.org/app-autoscaler/src/autoscaler/testhelpers"
 	"code.cloudfoundry.org/cfhttp"
+	"code.cloudfoundry.org/clock"
 	"code.cloudfoundry.org/go-loggregator/v8/rpc/loggregator_v2"
+	"code.cloudfoundry.org/lager"
 	"fmt"
-	"github.com/golang/protobuf/proto"
-	"github.com/gorilla/websocket"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 	"io"
@@ -35,44 +38,32 @@ var _ = Describe("MetricsServer", func() {
 	})
 
 	Describe("Sending ws start and stop envelopes", func() {
-		var ws websocket.Conn
+		var emitter metricsgateway.Emitter
 		BeforeEach(func() {
 			runner.Start()
-
-			u := url.URL{Scheme: "wss", Host: fmt.Sprintf("localhost:%d", wsPort), Path: "/"}
+			u := url.URL{Scheme: "wss", Host: fmt.Sprintf("localhost:%d", wsPort), Path: routes.EnvelopePath}
 			log.Printf("connecting to %s", u.String())
-			//nolint:staticcheck  // SA1019 TODO: https://github.com/cloudfoundry/app-autoscaler-release/issues/548
 			tlsConfig, err := cfhttp.NewTLSConfig(
-				filepath.Join(testCertDir, "metricserver.crt"),
-				filepath.Join(testCertDir, "metricserver.key"),
+				filepath.Join(testCertDir, "localhost_client.crt"),
+				filepath.Join(testCertDir, "localhost_client.key"),
 				filepath.Join(testCertDir, "autoscaler-ca.crt"),
 			)
-			ws, _, err := (&websocket.Dialer{
-				Proxy:            http.ProxyFromEnvironment,
-				HandshakeTimeout: 45 * time.Second,
-				TLSClientConfig:  tlsConfig,
-			}).Dial(u.String(), nil)
+			tlsConfig.InsecureSkipVerify = true
+			FailOnError("tls config failure", err)
+			logger := lager.NewLogger("emitter")
+			logger.RegisterSink(lager.NewWriterSink(GinkgoWriter, lager.DEBUG))
 
-			FailOnError("failed open ws", err)
-
-			DeferCleanup(func() {
-				err := ws.WriteMessage(websocket.CloseMessage, websocket.FormatCloseMessage(websocket.CloseNormalClosure, ""))
-				FailOnError("Closed failed to close", err)
-			})
-
+			emitter = metricsgateway.NewEnvelopeEmitter(logger, 2048, clock.NewClock(), 100*time.Millisecond, mgHelpers.NewWSHelper(u.String(), tlsConfig, 1*time.Second, logger, 3, 3, 100*time.Millisecond))
+			err = emitter.Start()
+			FailOnError("emitter failed to start", err)
 		})
-		It("try it out", func() {
+		It("try stuff", func() {
 			envelope := &loggregator_v2.Envelope{}
 			envelope.Message = &loggregator_v2.Envelope_Timer{Timer: &loggregator_v2.Timer{Start: time.Now().UnixNano(), Stop: time.Now().Add(1 * time.Second).UnixNano()}}
 			envelope.SourceId = "some-app"
 			envelope.InstanceId = "0"
-			envelope.GetTimer()
-
-			message, err := proto.Marshal(envelope)
-			FailOnError("proto.Marshal", err)
-
-			err = ws.WriteMessage(websocket.BinaryMessage, message)
-			FailOnError("WriteMessage", err)
+			err := emitter.Emit(envelope)
+			FailOnError("emitter failure", err)
 		})
 
 	})
