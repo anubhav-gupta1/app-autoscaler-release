@@ -56,7 +56,6 @@ func (h *wsMessageHandler) runWebsocketUntilClosed(ws *websocket.Conn) (closeCod
 	go func() {
 		for {
 			_, bytes, err := ws.ReadMessage()
-
 			if err != nil {
 				h.logger.Error("run-websocket-read-message", err)
 				close(clientWentAway)
@@ -67,7 +66,6 @@ func (h *wsMessageHandler) runWebsocketUntilClosed(ws *websocket.Conn) (closeCod
 			if err != nil {
 				h.logger.Error("run-websocket-unmarshal", err)
 			}
-			h.logger.Info("read envelope")
 			h.envelopeChannels[helpers.FNVHash(envelop.GetSourceId())%uint32(len(h.envelopeChannels))] <- &envelop
 		}
 	}()
