@@ -13,7 +13,7 @@ uaa_ssl_ca_file="${UAA_SSL_CA_FILE:-$(mktemp)}"
 uaa_ssl_cert_file="${UAA_SSL_CERT_FILE:-$(mktemp)}"
 uaa_ssl_key_file="${UAA_SSL_KEY_FILE:-$(mktemp)}"
 slack_channel="${SLACK_CHANNEL:-cf-dev-autoscaler-alerts}"
-slack_webhook="${SLACK_WEBHOOK}"
+slack_webhook="${SLACK_WEBHOOK:-""}"
 prometheus_dir="${PROMETHEUS_DIR:-$(realpath -e ${root_dir}/../prometheus-boshrelease)}"
 deployment_manifest=${DEPLOYMENT_MANIFEST:-"${prometheus_dir}/manifests/prometheus.yml"}
 prometheus_ops="${prometheus_dir}/manifests/operators"
@@ -26,10 +26,10 @@ ops_files=${OPS_FILES:-"${prometheus_ops}/monitor-bosh.yml\
                         ${prometheus_ops}/enable-cf-loggregator-v2.yml\
                         ${prometheus_ops}/monitor-bosh-director.yml\
                         ${prometheus_ops}/alertmanager-slack-receiver.yml\
-                        ${prometheus_ops}/use-jammy-stemcell.yml\
                         ${ci_dir}/operations/prometheus-customize-alerts.yml\
                         ${ci_dir}/operations/slack-receiver-template.yml\
                         ${ci_dir}/operations/prometheus-nats-tls.yml\
+                        ${prometheus_ops}/use-jammy-stemcell.yml\
                         ${prometheus_ops}/alertmanager-group-by-alertname.yml\
                         "}
 
@@ -65,11 +65,13 @@ credhub get -n /bosh-autoscaler/cf/uaa_ssl -k ca          > $uaa_ssl_ca_file
 credhub get -n /bosh-autoscaler/cf/uaa_ssl -k certificate > $uaa_ssl_cert_file
 credhub get -n /bosh-autoscaler/cf/uaa_ssl -k private_key > $uaa_ssl_key_file
 
-credhub set -n /bosh-autoscaler/prometheus/alertmanager_slack_channel -t value -v "${slack_channel}"
-credhub set -n /bosh-autoscaler/prometheus/alertmanager_slack_api_url -t value -v "${slack_webhook}"
+#credhub set -n /bosh-autoscaler/prometheus/alertmanager_slack_channel -t value -v "${slack_channel}"
+#credhub set -n /bosh-autoscaler/prometheus/alertmanager_slack_api_url -t value -v "${slack_webhook}"
 
 
 function find_or_upload_stemcell(){
+  echo "=======inside find_or_upload_stemcell========== "
+  export
   # Determine if we need to upload a stemcell at this point.
   stemcell_os=$(yq eval '.stemcells[] | select(.alias == "default").os' $deployment_manifest)
   stemcell_version=$(yq eval '.stemcells[] | select(.alias == "default").version' $deployment_manifest)

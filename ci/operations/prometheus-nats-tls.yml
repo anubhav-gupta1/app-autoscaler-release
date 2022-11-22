@@ -18,12 +18,7 @@
   path: /releases/name=routing
   value:
     name: routing
-    sha1: 75d14b365d44d5ac880499ce9f073d340c1fd87c
-    stemcell:
-      os: ubuntu-bionic
-      version: "1.97"
-    url: https://storage.googleapis.com/cf-deployment-compiled-releases/routing-0.238.0-ubuntu-bionic-1.97-20220906-171522-72054731.tgz
-    version: 0.238.0
+    version: latest
 
 - type: replace
   path: /instance_groups/name=nginx/jobs/name=route_registrar/properties/nats?
