@@ -31,17 +31,19 @@ if [ -n "${config}" ] && which jq > /dev/null ; then
 fi
 
 function delete_org(){
-  local ORG=$1
-
-  if ! cf delete-org -f "$ORG"; then
-    cf target -o "$ORG"
-    SERVICES=$(cf services | grep "${SERVICE_PREFIX}" |  awk '{ print $1}')
-    for SERVICE in $SERVICES; do
-      cf purge-service-instance "$SERVICE" -f || echo "ERROR: purge-service-instance '$SERVICE' failed"
+  local org=$1
+  if ! cf delete-org -f "$org"; then
+    local service
+    local services
+    cf target -o "$org"
+    # shellcheck disable=SC2155
+    services=$(cf services | grep "${SERVICE_PREFIX}" |  awk '{print $1}')
+    for service in $services; do
+      cf purge-service-instance "$service" -f || echo "ERROR: purge-service-instance '$service' failed"
     done
-    cf delete-org -f "$ORG" || echo "ERROR: delete-org '$ORG' failed"
+    cf delete-org -f "$org" || echo "ERROR: delete-org '$ORG' failed"
   fi
-  echo " - deleted org $ORG"
+  echo " - deleted org $org"
 }
 
 function delete_space(){
@@ -49,10 +51,12 @@ function delete_space(){
    local space=$2
    cf target -o "${org}" -s "${space}"
    if ! cf delete-space -f "$space"; then
+      local services
+      local service
       cf target -o "$org" -s "${space}"
-      SERVICES=$(cf services | grep "${SERVICE_PREFIX}" |  awk 'NR>1 { print $1}')
-      for SERVICE in $SERVICES; do
-        cf purge-service-instance "$SERVICE" -f || echo "ERROR: purge-service-instance '$SERVICE' failed"
+      services=$(cf services | grep "${SERVICE_PREFIX}" |  awk 'NR>1 { print $1}')
+      for service in $services; do
+        cf purge-service-instance "$service" -f || echo "ERROR: purge-service-instance '$service' failed"
       done
       cf delete-space -f "$space" || echo "ERROR: delete-org '$org' failed"
     fi
