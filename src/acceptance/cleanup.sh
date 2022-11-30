@@ -41,7 +41,7 @@ function delete_org(){
     for service in $services; do
       cf purge-service-instance "$service" -f || echo "ERROR: purge-service-instance '$service' failed"
     done
-    cf delete-org -f "$org" || echo "ERROR: delete-org '$ORG' failed"
+    cf delete-org -f "$org" || echo "ERROR: delete-org '$org' failed"
   fi
   echo " - deleted org $org"
 }
@@ -65,32 +65,44 @@ function delete_space(){
 
 name_prefix=${NAME_PREFIX:-"ASATS|ASUP|CUST_MET"}
 
-if [ "${DELETE_ORG}" = "false" ]; then
-  if [ "${DELETE_SPACE}" = "true" ]; then
-    org="$(getConfItem 'existing_organization')"
-    cf target -o "$org"
-    spaces=$(cf spaces |  awk 'NR>3{ print $1}' | grep -E "${name_prefix}" || true)
-    for space in ${spaces}; do
-      delete_space "$org" "$space" &
-    done
-  fi
-else
-  ORGS=$(cf orgs |  awk 'NR>3{ print $1}' | grep -E "${name_prefix}" || true)
-  echo "# deleting orgs: '${ORGS}'"
-  for ORG in $ORGS; do
-    # shellcheck disable=SC2181
-    delete_org "$ORG" &
-  done
-fi
+function cleanup(){
+  local background=${1:-}
 
-if [ "${DELETE_USER}" = "true" ]; then
-  if [ -n "${name_prefix}" ]
-  then
-    for user in $(cf curl /v3/users | jq -r '.resources[].username' | grep "${name_prefix}-" )
-    do
-      echo " - deleting left over user '${user}'"
-      cf delete-user -f "$user" &
+  if [ "${DELETE_ORG}" = "false" ]; then
+    if [ "${DELETE_SPACE}" = "true" ]; then
+      # shellcheck disable=SC2155
+      local org
+      local space
+      local spaces
+      org="$(getConfItem 'existing_organization')"
+      cf target -o "$org"
+      spaces=$(cf spaces |  awk 'NR>3{ print $1}' | grep -E "${name_prefix}" || true)
+      for space in ${spaces}; do
+        eval "delete_space \"$org\" \"$space\" ${background}"
+      done
+    fi
+  else
+    # shellcheck disable=SC2155
+    local orgs=$(cf orgs |  awk 'NR>3{ print $1}' | grep -E "${name_prefix}" || true)
+    echo "# deleting orgs: '${orgs}'"
+    for org in $orgs; do
+      # shellcheck disable=SC2181
+      eval "delete_org \"$org\" ${background}"
     done
   fi
-fi
-wait
+
+  if [ "${DELETE_USER}" = "true" ]; then
+    if [ -n "${name_prefix}" ]
+    then
+      for user in $(cf curl /v3/users | jq -r '.resources[].username' | grep "${name_prefix}-" )
+      do
+        echo " - deleting left over user '${user}'"
+        eval "cf delete-user -f \"$user\""
+      done
+    fi
+  fi
+  wait
+}
+
+cleanup "&"
+
