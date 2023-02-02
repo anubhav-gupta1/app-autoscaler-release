@@ -310,7 +310,7 @@ var _ = Describe("Cf cloud controller", func() {
 			It("will return unauthorised", func() {
 				_, err := cfc.IsUserSpaceDeveloper("bearer a-test-access-token", "test-app-id")
 				Expect(err).To(HaveOccurred())
-				Expect(errors.Is(err, cf.ErrUnauthrorized)).To(BeTrue())
+				Expect(errors.Is(err, cf.ErrUnauthorized)).To(BeTrue())
 			})
 		})
 	})
