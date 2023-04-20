@@ -46,7 +46,7 @@ ENV PATH $PATH:$GOPATH/bin:/usr/local/go/bin
 
 # Install bosh_cli
 # renovate: datasource=github-releases depName=bosh-cli lookupName=cloudfoundry/bosh-cli
-ENV BOSH_VERSION 7.2.1
+ENV BOSH_VERSION 7.2.2
 RUN wget -q https://github.com/cloudfoundry/bosh-cli/releases/download/v${BOSH_VERSION}/bosh-cli-${BOSH_VERSION}-linux-amd64 && \
   mv bosh-cli-* /usr/local/bin/bosh && \
   chmod +x /usr/local/bin/bosh
@@ -77,7 +77,7 @@ RUN wget -q https://github.com/stedolan/jq/releases/download/${JQ_VERSION}/jq-li
 
 # install yq
 # renovate: datasource=github-releases depName=yq lookupName=mikefarah/yq
-ARG YQ_VERSION=v4.33.2
+ARG YQ_VERSION=v4.33.3
 RUN wget -qO /usr/local/bin/yq https://github.com/mikefarah/yq/releases/download/${YQ_VERSION}/yq_linux_amd64 && \
     chmod a+x /usr/local/bin/yq && \
     yq --version
